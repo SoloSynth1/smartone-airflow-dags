@@ -32,9 +32,9 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 dag = DAG(
-    'tutorial',
+    'bash_test',
     default_args=default_args,
-    description='A simple tutorial DAG',
+    description='A simple test DAG',
     schedule_interval=timedelta(days=1),
     start_date=days_ago(2),
     tags=['example'],
