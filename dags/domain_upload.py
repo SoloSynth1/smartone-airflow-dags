@@ -32,10 +32,10 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 dag = DAG(
-    'bash_test3',
+    'domain_upload_pipeline',
     default_args=default_args,
     description='A simple test DAG',
-    schedule_interval=timedelta(days=1),
+    schedule_interval=None,
     start_date=days_ago(2),
     tags=['example'],
 )
