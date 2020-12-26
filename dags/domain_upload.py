@@ -42,6 +42,7 @@ dag = DAG(
 
 # t1, t2 and t3 are examples of tasks created by instantiating operators
 t1 = S3KeySensor(
+    task_id='new_csv_upload',
     bucket_key="*",
     bucket_name='domain-list-upload',
     wildcard_match=True,
