@@ -43,7 +43,7 @@ dag = DAG(
 
 domain_queuer = KubernetesPodOperator(
     namespace='airflow',
-    image="gcr.io/smartone-gcp-1/domain_queuer:latest",
+    image="gcr.io/smartone-gcp-1/domain-queuer:latest",
     # cmds=["{{ dag_run.conf['minioObject'] }}", "{{ dag_run.conf['runId'] }}"],
     arguments=["{{ dag_run.conf['minioObject'] }} {{ dag_run.conf['runId'] }}"],
     # labels={"foo": "bar"},
