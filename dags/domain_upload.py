@@ -48,7 +48,7 @@ domain_queuer = KubernetesPodOperator(
         "RUN_ID": "{{ dag_run.conf['runId'] }}",
         "FILENAME": "{{ dag_run.conf['minioObject'] }}"
     },
-    # labels={"foo": "bar"},
+    labels={"redis-client": "true"},
     name="domain_queuer",
     task_id="domain_queuer",
     get_logs=True,
