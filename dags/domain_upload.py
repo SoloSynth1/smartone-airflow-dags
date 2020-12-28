@@ -49,8 +49,8 @@ domain_queuer = KubernetesPodOperator(
         "FILENAME": "{{ dag_run.conf['minioObject'] }}"
     },
     labels={"redis-client": "true"},
-    name="domain_queuer",
-    task_id="domain_queuer",
+    name="domain-queuer",
+    task_id="domain-queuer",
     get_logs=True,
     dag=dag,
     image_pull_policy='Always',
@@ -77,6 +77,27 @@ templated_command = """
 start = DummyOperator(task_id="start")
 end = DummyOperator(task_id="end")
 
-start >> domain_queuer >> end
+domain_googlesearch = DummyOperator(task_id="domain-googlesearch")
+domain_landingpage = DummyOperator(task_id="domain-landingpage")
+domain_webshrinker = DummyOperator(task_id="domain-webshrinker")
 
-# start >> domain_queuer >> [domain_webshrinker, domain_googlesearch, domain_landingpage] >> domain_reporter >> end
+domain_googlesearch_workers = [DummyOperator(task_id="domain-googlesearch-worker-{}".format(x) for x in range(3))]
+domain_landingpage_workers = [DummyOperator(task_id="domain-landingpage-worker-{}".format(x) for x in range(3))]
+domain_webshrinker_workers = [DummyOperator(task_id="domain-webshrinker-worker-{}".format(x) for x in range(3))]
+
+domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter")
+domain_landingpage_reporter = DummyOperator(task_id="domain-landingpage-reporter")
+domain_webshrinker_reporter = DummyOperator(task_id="domain-webshrinker-reporter")
+
+start.set_downstream(domain_queuer)
+domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])
+
+domain_googlesearch.set_downstream(domain_googlesearch_workers)
+domain_landingpage.set_downstream(domain_landingpage_workers)
+domain_webshrinker.set_downstream(domain_webshrinker_workers)
+
+domain_googlesearch_reporter.set_upstream(domain_googlesearch_workers)
+domain_landingpage_reporter.set_upstream(domain_landingpage_workers)
+domain_webshrinker_reporter.set_upstream(domain_webshrinker_workers)
+
+end.set_upstream([domain_googlesearch_reporter, domain_landingpage_reporter, domain_webshrinker_reporter])
