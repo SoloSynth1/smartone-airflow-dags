@@ -4,8 +4,8 @@ from datetime import timedelta
 from airflow import DAG
 
 # Operators; we need this to operate!
-from airflow.operators.bash_operator import BashOperator
-from airflow.sensors.s3_key_sensor import S3KeySensor
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.docker_operator import DockerOperator
 from airflow.utils.dates import days_ago
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
@@ -40,23 +40,18 @@ dag = DAG(
     tags=['example'],
 )
 
-# t1, t2 and t3 are examples of tasks created by instantiating operators
-t1 = S3KeySensor(
-    task_id='new_csv_upload',
-    bucket_key="*",
-    bucket_name='domain-list-upload',
-    wildcard_match=True,
+
+domain_queuer = DockerOperator(
+    image="gcr.io/smartone-gcp-1/",
+    task_id="domain_queuer",
+    command="{{ dag_run.conf['minioObject'] }} {{ dag_run.conf['runId'] }}",
     dag=dag,
+    auto_remove=True
 )
 
-t2 = BashOperator(
-    task_id='print_date',
-    bash_command='date',
-    dag=dag,
-)
 dag.doc_md = __doc__
 
-t1.doc_md = """\
+domain_queuer.doc_md = """\
 #### Task Documentation
 You can document your task using the attributes `doc_md` (markdown),
 `doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
@@ -71,12 +66,9 @@ templated_command = """
 {% endfor %}
 """
 
-# t3 = BashOperator(
-#     task_id='templated',
-#     depends_on_past=False,
-#     bash_command=templated_command,
-#     params={'my_param': 'Parameter I passed in'},
-#     dag=dag,
-# )
+start = DummyOperator()
+end = DummyOperator()
 
-t1 >> t2
+start >> domain_queuer >> end
+
+# start >> domain_queuer >> [domain_webshrinker, domain_googlesearch, domain_landingpage] >> domain_reporter >> end
