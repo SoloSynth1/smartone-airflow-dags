@@ -66,8 +66,8 @@ templated_command = """
 {% endfor %}
 """
 
-start = DummyOperator()
-end = DummyOperator()
+start = DummyOperator(task_id="start")
+end = DummyOperator(task_id="end")
 
 start >> domain_queuer >> end
 
