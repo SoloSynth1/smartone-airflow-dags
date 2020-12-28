@@ -57,6 +57,19 @@ domain_queuer = KubernetesPodOperator(
     is_delete_operator_pod=True,
 )
 
+
+def landingpage_worker(worker_id):
+    return KubernetesPodOperator(namespace='airflow',
+                                 image="gcr.io/smartone-gcp-1/domain-landingpage-parser:latest",
+                                 labels={"redis-client": "true"},
+                                 name="domain-landingpage-worker-{}".format(worker_id),
+                                 task_id="domain-landingpage-worker-{}".format(worker_id),
+                                 get_logs=True,
+                                 dag=dag,
+                                 image_pull_policy='Always',
+                                 is_delete_operator_pod=True,)
+
+
 dag.doc_md = __doc__
 
 domain_queuer.doc_md = """\
@@ -82,7 +95,7 @@ domain_landingpage = DummyOperator(task_id="domain-landingpage")
 domain_webshrinker = DummyOperator(task_id="domain-webshrinker")
 
 domain_googlesearch_workers = [DummyOperator(task_id="domain-googlesearch-worker-{}".format(x)) for x in range(3)]
-domain_landingpage_workers = [DummyOperator(task_id="domain-landingpage-worker-{}".format(x)) for x in range(3)]
+domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 domain_webshrinker_workers = [DummyOperator(task_id="domain-webshrinker-worker-{}".format(x)) for x in range(3)]
 
 domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter")
