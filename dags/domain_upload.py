@@ -81,9 +81,9 @@ domain_googlesearch = DummyOperator(task_id="domain-googlesearch")
 domain_landingpage = DummyOperator(task_id="domain-landingpage")
 domain_webshrinker = DummyOperator(task_id="domain-webshrinker")
 
-domain_googlesearch_workers = [DummyOperator(task_id="domain-googlesearch-worker-{}".format(x) for x in range(3))]
-domain_landingpage_workers = [DummyOperator(task_id="domain-landingpage-worker-{}".format(x) for x in range(3))]
-domain_webshrinker_workers = [DummyOperator(task_id="domain-webshrinker-worker-{}".format(x) for x in range(3))]
+domain_googlesearch_workers = [DummyOperator(task_id="domain-googlesearch-worker-{}".format(x)) for x in range(3)]
+domain_landingpage_workers = [DummyOperator(task_id="domain-landingpage-worker-{}".format(x)) for x in range(3)]
+domain_webshrinker_workers = [DummyOperator(task_id="domain-webshrinker-worker-{}".format(x)) for x in range(3)]
 
 domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter")
 domain_landingpage_reporter = DummyOperator(task_id="domain-landingpage-reporter")
