@@ -54,6 +54,7 @@ domain_queuer = KubernetesPodOperator(
     get_logs=True,
     dag=dag,
     image_pull_policy='Always',
+    is_delete_operator_pod=True,
 )
 
 dag.doc_md = __doc__
