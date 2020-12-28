@@ -6,6 +6,7 @@ from airflow import DAG
 # Operators; we need this to operate!
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.docker_operator import DockerOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
@@ -40,13 +41,16 @@ dag = DAG(
     tags=['example'],
 )
 
-
-domain_queuer = DockerOperator(
+domain_queuer = KubernetesPodOperator(
+    namespace='airflow',
     image="gcr.io/smartone-gcp-1/domain_queuer:latest",
+    # cmds=["{{ dag_run.conf['minioObject'] }}", "{{ dag_run.conf['runId'] }}"],
+    arguments=["{{ dag_run.conf['minioObject'] }} {{ dag_run.conf['runId'] }}"],
+    # labels={"foo": "bar"},
+    name="domain_queuer",
     task_id="domain_queuer",
-    command="{{ dag_run.conf['minioObject'] }} {{ dag_run.conf['runId'] }}",
-    dag=dag,
-    auto_remove=True
+    get_logs=True,
+    dag=dag
 )
 
 dag.doc_md = __doc__
