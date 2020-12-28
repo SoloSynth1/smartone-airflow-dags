@@ -42,7 +42,7 @@ dag = DAG(
 
 
 domain_queuer = DockerOperator(
-    image="gcr.io/smartone-gcp-1/",
+    image="gcr.io/smartone-gcp-1/domain_queuer:latest",
     task_id="domain_queuer",
     command="{{ dag_run.conf['minioObject'] }} {{ dag_run.conf['runId'] }}",
     dag=dag,
