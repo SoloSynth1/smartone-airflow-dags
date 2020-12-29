@@ -100,20 +100,20 @@ rendered in the UI's Task Instance Details page.
 ![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
 """
 
-start = DummyOperator(task_id="start")
-end = DummyOperator(task_id="end")
+start = DummyOperator(task_id="start", dag=dag)
+end = DummyOperator(task_id="end", dag=dag)
 
-domain_googlesearch = DummyOperator(task_id="domain-googlesearch")
-domain_landingpage = DummyOperator(task_id="domain-landingpage")
-domain_webshrinker = DummyOperator(task_id="domain-webshrinker")
+domain_googlesearch = DummyOperator(task_id="domain-googlesearch", dag=dag)
+domain_landingpage = DummyOperator(task_id="domain-landingpage", dag=dag)
+domain_webshrinker = DummyOperator(task_id="domain-webshrinker", dag=dag)
 
 domain_googlesearch_workers = [googlesearch_worker(x) for x in range(3)]
 domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
-domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter")
-domain_landingpage_reporter = DummyOperator(task_id="domain-landingpage-reporter")
-domain_webshrinker_reporter = DummyOperator(task_id="domain-webshrinker-reporter")
+domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter", dag=dag)
+domain_landingpage_reporter = DummyOperator(task_id="domain-landingpage-reporter", dag=dag)
+domain_webshrinker_reporter = DummyOperator(task_id="domain-webshrinker-reporter", dag=dag)
 
 start.set_downstream(domain_queuer)
 domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])

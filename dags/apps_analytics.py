@@ -39,14 +39,14 @@ dag = DAG(
 
 dag.doc_md = __doc__
 
-app_store_analytics_worker = DummyOperator(task_id='app-store-analytics-worker')
-app_store_analytics_reporter = DummyOperator(task_id='app-store-analytics-reporter')
+app_store_analytics_worker = DummyOperator(task_id='app-store-analytics-worker', dag=dag)
+app_store_analytics_reporter = DummyOperator(task_id='app-store-analytics-reporter', dag=dag)
 
-play_store_analytics_worker = DummyOperator(task_id='play-store-analytics-worker')
-play_store_analytics_reporter = DummyOperator(task_id='play-store-analytics-reporter')
+play_store_analytics_worker = DummyOperator(task_id='play-store-analytics-worker', dag=dag)
+play_store_analytics_reporter = DummyOperator(task_id='play-store-analytics-reporter', dag=dag)
 
-start = DummyOperator(task_id="start")
-end = DummyOperator(task_id="end")
+start = DummyOperator(task_id="start", dag=dag)
+end = DummyOperator(task_id="end", dag=dag)
 
 start.set_downstream([app_store_analytics_worker, play_store_analytics_worker])
 app_store_analytics_worker.set_downstream(app_store_analytics_reporter)
