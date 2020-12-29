@@ -4,6 +4,7 @@ from airflow import DAG
 
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.utils.dates import days_ago
 
 default_args = {
     'owner': 'orix.auyeung',
@@ -33,7 +34,7 @@ dag = DAG(
     default_args=default_args,
     description='Monthly triggered apps analytics pipeline',
     schedule_interval='@monthly',
-    start_date=datetime(2021, 1, 1),
+    start_date=days_ago(2),
     tags=['analytics', 'apps'],
 )
 
