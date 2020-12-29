@@ -1,15 +1,11 @@
 from datetime import timedelta
 
-# The DAG object; we'll need this to instantiate a DAG
 from airflow import DAG
 
-# Operators; we need this to operate!
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.docker_operator import DockerOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
-# These args will get passed on to each operator
-# You can override them on a per-task basis during operator initialization
+
 default_args = {
     'owner': 'orix.auyeung',
     'depends_on_past': False,
@@ -32,10 +28,11 @@ default_args = {
     # 'sla_miss_callback': yet_another_function,
     # 'trigger_rule': 'all_success'
 }
+
 dag = DAG(
     'domain_upload_pipeline',
     default_args=default_args,
-    description='A simple test DAG',
+    description='Minio-triggered domain analytics pipeline',
     schedule_interval=None,
     start_date=days_ago(2),
     tags=['example'],
@@ -82,6 +79,17 @@ def webshrinker_worker(worker_id):
                                  is_delete_operator_pod=True,)
 
 
+def googlesearch_worker(worker_id):
+    return KubernetesPodOperator(namespace='airflow',
+                                 image="gcr.io/smartone-gcp-1/domain-googlesearch-parser:latest",
+                                 labels={"redis-client": "true"},
+                                 name="domain-googlesearch-worker-{}".format(worker_id),
+                                 task_id="domain-googlesearch-worker-{}".format(worker_id),
+                                 get_logs=True,
+                                 dag=dag,
+                                 image_pull_policy='Always',
+                                 is_delete_operator_pod=True,)
+
 dag.doc_md = __doc__
 
 domain_queuer.doc_md = """\
@@ -91,13 +99,6 @@ You can document your task using the attributes `doc_md` (markdown),
 rendered in the UI's Task Instance Details page.
 ![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
 """
-templated_command = """
-{% for i in range(5) %}
-    echo "{{ ds }}"
-    echo "{{ macros.ds_add(ds, 7)}}"
-    echo "{{ params.my_param }}"
-{% endfor %}
-"""
 
 start = DummyOperator(task_id="start")
 end = DummyOperator(task_id="end")
@@ -106,7 +107,7 @@ domain_googlesearch = DummyOperator(task_id="domain-googlesearch")
 domain_landingpage = DummyOperator(task_id="domain-landingpage")
 domain_webshrinker = DummyOperator(task_id="domain-webshrinker")
 
-domain_googlesearch_workers = [DummyOperator(task_id="domain-googlesearch-worker-{}".format(x)) for x in range(3)]
+domain_googlesearch_workers = [googlesearch_worker(x) for x in range(3)]
 domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
