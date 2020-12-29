@@ -35,7 +35,7 @@ dag = DAG(
     description='Minio-triggered domain analytics pipeline',
     schedule_interval=None,
     start_date=days_ago(2),
-    tags=['example'],
+    tags=['analytics', 'external trigger'],
 )
 
 domain_queuer = KubernetesPodOperator(
