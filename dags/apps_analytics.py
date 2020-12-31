@@ -1,10 +1,17 @@
+from uuid import uuid4
 from datetime import timedelta, datetime
 
 from airflow import DAG
 
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
+
+
+def generate_run_id():
+    return str(uuid4())
+
 
 default_args = {
     'owner': 'orix.auyeung',
@@ -49,7 +56,18 @@ play_store_analytics_reporter = DummyOperator(task_id='play-store-analytics-repo
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
 
-start >> [app_store_analytics_worker, play_store_analytics_worker]
+run_id_generator = PythonOperator(task_id='run-id-generator',
+                                  dag=dag,
+                                  python_callable=lambda _: str(uuid4()),
+                                  )
+
+
+run_id_pull_tester = PythonOperator(task_id='run-id-tester',
+                                    dag=dag,
+                                    python_callable=lambda _: print("{{ ti.xcom_pull(key=None, task_ids=['run-id-generator']) }}"),
+                                    )
+
+start >> run_id_generator >> run_id_pull_tester >> [app_store_analytics_worker, play_store_analytics_worker]
 app_store_analytics_worker >> app_store_analytics_reporter
 play_store_analytics_worker >> play_store_analytics_reporter
 [app_store_analytics_reporter, play_store_analytics_reporter] >> end
