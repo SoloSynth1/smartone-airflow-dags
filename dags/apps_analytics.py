@@ -49,7 +49,7 @@ play_store_analytics_reporter = DummyOperator(task_id='play-store-analytics-repo
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
 
-start.set_downstream([app_store_analytics_worker, play_store_analytics_worker])
-app_store_analytics_worker.set_downstream(app_store_analytics_reporter)
-play_store_analytics_worker.set_downstream(play_store_analytics_reporter)
-end.set_upstream([app_store_analytics_reporter, play_store_analytics_reporter])
+start >> [app_store_analytics_worker, play_store_analytics_worker]
+app_store_analytics_worker >> app_store_analytics_reporter
+play_store_analytics_worker >> play_store_analytics_reporter
+[app_store_analytics_reporter, play_store_analytics_reporter] >> end
