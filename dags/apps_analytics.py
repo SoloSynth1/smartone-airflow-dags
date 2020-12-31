@@ -71,7 +71,7 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
 run_id_pull_tester = PythonOperator(task_id='run-id-tester',
                                     dag=dag,
                                     python_callable=print_run_id,
-                                    op_kwargs={"run_id": "{{ ti.xcom_pull(key=['return_value'], task_ids=['run-id-generator']) }}"}
+                                    op_kwargs={"run_id": "{{ ti.xcom_pull(task_ids='run-id-generator') }}"}
                                     )
 
 start >> run_id_generator >> run_id_pull_tester >> [app_store_analytics_worker, play_store_analytics_worker]
