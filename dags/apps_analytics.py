@@ -68,6 +68,7 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   )
 
 
+# TODO: to be removed once downstream tasks are ready
 run_id_pull_tester = PythonOperator(task_id='run-id-tester',
                                     dag=dag,
                                     python_callable=print_run_id,
