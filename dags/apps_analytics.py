@@ -13,6 +13,10 @@ def generate_run_id():
     return str(uuid4())
 
 
+def print_run_id(run_id):
+    print("runId is {}".format(run_id))
+
+
 default_args = {
     'owner': 'orix.auyeung',
     'depends_on_past': False,
@@ -58,13 +62,14 @@ end = DummyOperator(task_id="end", dag=dag)
 
 run_id_generator = PythonOperator(task_id='run-id-generator',
                                   dag=dag,
-                                  python_callable=lambda _: str(uuid4()),
+                                  python_callable=generate_run_id,
                                   )
 
 
 run_id_pull_tester = PythonOperator(task_id='run-id-tester',
                                     dag=dag,
-                                    python_callable=lambda _: print("{{ ti.xcom_pull(key=None, task_ids=['run-id-generator']) }}"),
+                                    python_callable=print_run_id,
+                                    op_kwargs={"run_id": "{{ ti.xcom_pull(key=None, task_ids=['run-id-generator']) }}"}
                                     )
 
 start >> run_id_generator >> run_id_pull_tester >> [app_store_analytics_worker, play_store_analytics_worker]
