@@ -14,7 +14,9 @@ def generate_run_id():
 
 
 def print_run_id(run_id):
-    print("runId is {}".format(run_id))
+    received_id = "runId is {}".format(run_id)
+    print(received_id)
+    return received_id
 
 
 default_args = {
