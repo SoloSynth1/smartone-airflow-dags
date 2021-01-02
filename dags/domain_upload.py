@@ -64,7 +64,7 @@ def landingpage_worker(worker_id):
                                  get_logs=True,
                                  dag=dag,
                                  image_pull_policy='Always',
-                                 is_delete_operator_pod=True,)
+                                 is_delete_operator_pod=True, )
 
 
 def webshrinker_worker(worker_id):
@@ -76,7 +76,7 @@ def webshrinker_worker(worker_id):
                                  get_logs=True,
                                  dag=dag,
                                  image_pull_policy='Always',
-                                 is_delete_operator_pod=True,)
+                                 is_delete_operator_pod=True, )
 
 
 def googlesearch_worker(worker_id):
@@ -88,7 +88,8 @@ def googlesearch_worker(worker_id):
                                  get_logs=True,
                                  dag=dag,
                                  image_pull_policy='Always',
-                                 is_delete_operator_pod=True,)
+                                 is_delete_operator_pod=True, )
+
 
 dag.doc_md = __doc__
 
@@ -111,9 +112,50 @@ domain_googlesearch_workers = [googlesearch_worker(x) for x in range(3)]
 domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
-domain_googlesearch_reporter = DummyOperator(task_id="domain-googlesearch-reporter", dag=dag)
-domain_landingpage_reporter = DummyOperator(task_id="domain-landingpage-reporter", dag=dag)
-domain_webshrinker_reporter = DummyOperator(task_id="domain-webshrinker-reporter", dag=dag)
+domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
+                                                     image="gcr.io/smartone-gcp-1/reporter:latest",
+                                                     labels={"redis-client": "true"},
+                                                     name="domain-googlesearch-reporter",
+                                                     task_id="domain-googlesearch-reporter",
+                                                     get_logs=True,
+                                                     dag=dag,
+                                                     # TODO: set correct envVars
+                                                     env_vars={
+                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
+                                                         "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                     },
+                                                     image_pull_policy='Always',
+                                                     is_delete_operator_pod=True, )
+
+domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
+                                                    image="gcr.io/smartone-gcp-1/reporter:latest",
+                                                    labels={"redis-client": "true"},
+                                                    name="domain-landingpage-reporter",
+                                                    task_id="domain-landingpage-reporter",
+                                                    get_logs=True,
+                                                    dag=dag,
+                                                    # TODO: set correct envVars
+                                                    env_vars={
+                                                        "RUN_ID": "{{ dag_run.conf['runId'] }}",
+                                                        "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                    },
+                                                    image_pull_policy='Always',
+                                                    is_delete_operator_pod=True, )
+
+domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
+                                                    image="gcr.io/smartone-gcp-1/reporter:latest",
+                                                    labels={"redis-client": "true"},
+                                                    name="domain-webshrinker-reporter",
+                                                    task_id="domain-webshrinker-reporter",
+                                                    get_logs=True,
+                                                    dag=dag,
+                                                    # TODO: set correct envVars
+                                                    env_vars={
+                                                        "RUN_ID": "{{ dag_run.conf['runId'] }}",
+                                                        "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                    },
+                                                    image_pull_policy='Always',
+                                                    is_delete_operator_pod=True, )
 
 start.set_downstream(domain_queuer)
 domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])
