@@ -53,11 +53,21 @@ dag = DAG(
 
 dag.doc_md = __doc__
 
-app_store_analytics_worker = DummyOperator(task_id='app-store-analytics-worker', dag=dag)
-app_store_analytics_reporter = DummyOperator(task_id='app-store-analytics-reporter', dag=dag)
+appstore_analytics_worker = DummyOperator(task_id='app-store-analytics-worker', dag=dag)
+appstore_analytics_reporter = DummyOperator(task_id='app-store-analytics-reporter', dag=dag)
 
-play_store_analytics_worker = DummyOperator(task_id='play-store-analytics-worker', dag=dag)
-play_store_analytics_reporter = DummyOperator(task_id='play-store-analytics-reporter', dag=dag)
+playstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
+                                                   image="gcr.io/smartone-gcp-1/playstore-analytics-worker:latest",
+                                                   name="playstore-analytics-worker",
+                                                   task_id="playstore-analytics-worker",
+                                                   get_logs=True,
+                                                   dag=dag,
+                                                   env_vars={
+                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
+                                                   },
+                                                   image_pull_policy='Always',
+                                                   is_delete_operator_pod=True,)
+playstore_analytics_reporter = DummyOperator(task_id='play-store-analytics-reporter', dag=dag)
 
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
@@ -68,14 +78,7 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   )
 
 
-# TODO: to be removed once downstream tasks are ready
-run_id_pull_tester = PythonOperator(task_id='run-id-tester',
-                                    dag=dag,
-                                    python_callable=print_run_id,
-                                    op_kwargs={"run_id": "{{ ti.xcom_pull(task_ids='run-id-generator') }}"}
-                                    )
-
-start >> run_id_generator >> run_id_pull_tester >> [app_store_analytics_worker, play_store_analytics_worker]
-app_store_analytics_worker >> app_store_analytics_reporter
-play_store_analytics_worker >> play_store_analytics_reporter
-[app_store_analytics_reporter, play_store_analytics_reporter] >> end
+start >> run_id_generator >> [appstore_analytics_worker, playstore_analytics_worker]
+appstore_analytics_worker >> appstore_analytics_reporter
+playstore_analytics_worker >> playstore_analytics_reporter
+[appstore_analytics_reporter, playstore_analytics_reporter] >> end
