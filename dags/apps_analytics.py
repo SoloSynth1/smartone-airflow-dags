@@ -53,7 +53,17 @@ dag = DAG(
 
 dag.doc_md = __doc__
 
-appstore_analytics_worker = DummyOperator(task_id='app-store-analytics-worker', dag=dag)
+appstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
+                                                  image="gcr.io/smartone-gcp-1/appstore-analytics-worker:latest",
+                                                  name="appstore-analytics-worker",
+                                                  task_id="appstore-analytics-worker",
+                                                  get_logs=True,
+                                                  dag=dag,
+                                                  env_vars={
+                                                      "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
+                                                  },
+                                                  image_pull_policy='Always',
+                                                  is_delete_operator_pod=True,)
 appstore_analytics_reporter = DummyOperator(task_id='app-store-analytics-reporter', dag=dag)
 
 playstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
@@ -63,7 +73,7 @@ playstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
                                                    get_logs=True,
                                                    dag=dag,
                                                    env_vars={
-                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
+                                                       "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                    },
                                                    image_pull_policy='Always',
                                                    is_delete_operator_pod=True,)
