@@ -119,10 +119,9 @@ domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
                                                      task_id="domain-googlesearch-reporter",
                                                      get_logs=True,
                                                      dag=dag,
-                                                     # TODO: set correct envVars
                                                      env_vars={
                                                          "RUN_ID": "{{ dag_run.conf['runId'] }}",
-                                                         "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                         "RUN_FLOW": "googlesearch"
                                                      },
                                                      image_pull_policy='Always',
                                                      is_delete_operator_pod=True, )
@@ -134,10 +133,9 @@ domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
                                                     task_id="domain-landingpage-reporter",
                                                     get_logs=True,
                                                     dag=dag,
-                                                    # TODO: set correct envVars
                                                     env_vars={
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
-                                                        "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                        "RUN_FLOW": "landingpage"
                                                     },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
@@ -149,10 +147,9 @@ domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
                                                     task_id="domain-webshrinker-reporter",
                                                     get_logs=True,
                                                     dag=dag,
-                                                    # TODO: set correct envVars
                                                     env_vars={
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
-                                                        "FILENAME": "{{ dag_run.conf['minioObject'] }}"
+                                                        "RUN_FLOW": "webshrinker"
                                                     },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
