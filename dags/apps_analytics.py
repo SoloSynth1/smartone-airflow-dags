@@ -13,12 +13,6 @@ def generate_run_id():
     return str(uuid4())
 
 
-def print_run_id(run_id):
-    received_id = "runId is {}".format(run_id)
-    print(received_id)
-    return received_id
-
-
 default_args = {
     'owner': 'orix.auyeung',
     'depends_on_past': False,
@@ -53,6 +47,10 @@ dag = DAG(
 
 dag.doc_md = __doc__
 
+run_id_generator = PythonOperator(task_id='run-id-generator',
+                                  dag=dag,
+                                  python_callable=generate_run_id,)
+
 appstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-analytics-worker:latest",
                                                   name="appstore-analytics-worker",
@@ -79,14 +77,9 @@ playstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
                                                    is_delete_operator_pod=True,)
 playstore_analytics_reporter = DummyOperator(task_id='play-store-analytics-reporter', dag=dag)
 
+
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
-
-run_id_generator = PythonOperator(task_id='run-id-generator',
-                                  dag=dag,
-                                  python_callable=generate_run_id,
-                                  )
-
 
 start >> run_id_generator >> [appstore_analytics_worker, playstore_analytics_worker]
 appstore_analytics_worker >> appstore_analytics_reporter
