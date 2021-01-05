@@ -60,6 +60,10 @@ appstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
                                                   env_vars={
                                                       "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                   },
+                                                  resources={
+                                                      "request_memory": "3072Mi",
+                                                      "request_cpu": "1000m",
+                                                  },
                                                   image_pull_policy='Always',
                                                   is_delete_operator_pod=True, )
 appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
@@ -71,6 +75,10 @@ appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                         "RUN_FLOW": "appstore",
+                                                    },
+                                                    resources={
+                                                        "request_memory": "3072Mi",
+                                                        "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
@@ -84,6 +92,10 @@ playstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
                                                    env_vars={
                                                        "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                    },
+                                                   resources={
+                                                       "request_memory": "3072Mi",
+                                                       "request_cpu": "1000m",
+                                                   },
                                                    image_pull_policy='Always',
                                                    is_delete_operator_pod=True, )
 playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
@@ -95,6 +107,10 @@ playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                         "RUN_FLOW": "playstore",
+                                                    },
+                                                    resources={
+                                                        "request_memory": "3072Mi",
+                                                        "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
