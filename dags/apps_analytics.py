@@ -1,6 +1,6 @@
-from uuid import uuid4
 from datetime import timedelta, datetime
 
+import pytz
 from airflow import DAG
 
 from airflow.operators.dummy_operator import DummyOperator
@@ -10,7 +10,9 @@ from airflow.utils.dates import days_ago
 
 
 def generate_run_id():
-    return str(uuid4())
+    hkt = pytz.timezone('Asia/Hong_Kong')
+    datestring = datetime.now().astimezone(hkt).strftime("%Y%m%d%H%M")
+    return "HKT_{}".format(datestring)
 
 
 default_args = {
@@ -77,7 +79,7 @@ appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                         "RUN_FLOW": "appstore",
                                                     },
                                                     resources={
-                                                        "request_memory": "3072Mi",
+                                                        "request_memory": "4096Mi",
                                                         "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
@@ -109,7 +111,7 @@ playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                         "RUN_FLOW": "playstore",
                                                     },
                                                     resources={
-                                                        "request_memory": "3072Mi",
+                                                        "request_memory": "4096Mi",
                                                         "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
