@@ -123,6 +123,10 @@ domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
                                                          "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                          "RUN_FLOW": "googlesearch"
                                                      },
+                                                     resources={
+                                                        "request_memory": "4096Mi",
+                                                        "request_cpu": "1000m",
+                                                     },
                                                      image_pull_policy='Always',
                                                      is_delete_operator_pod=True, )
 
@@ -137,6 +141,10 @@ domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                         "RUN_FLOW": "landingpage"
                                                     },
+                                                    resources={
+                                                        "request_memory": "4096Mi",
+                                                        "request_cpu": "1000m",
+                                                    },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
 
@@ -150,6 +158,10 @@ domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                         "RUN_FLOW": "webshrinker"
+                                                    },
+                                                    resources={
+                                                        "request_memory": "4096Mi",
+                                                        "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
