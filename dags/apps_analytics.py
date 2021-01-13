@@ -53,21 +53,24 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   dag=dag,
                                   python_callable=generate_run_id, )
 
-appstore_analytics_worker = KubernetesPodOperator(namespace='airflow',
+appstore_analyyics_worker_regex_range = ['[a-i]', '[j-r]', '[s-z]']
+appstore_analytics_workers = [KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-scrapy:latest",
-                                                  name="appstore-analytics-worker",
-                                                  task_id="appstore-analytics-worker",
+                                                  name="appstore-analytics-worker({})".format(regex_range),
+                                                  task_id="appstore-analytics-worker".format(regex_range),
                                                   get_logs=True,
                                                   dag=dag,
                                                   env_vars={
                                                       "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
+                                                      "APPSTORE_RANGE_REGEX": regex_range,
                                                   },
                                                   resources={
-                                                      "request_memory": "2048Mi",
+                                                      "request_memory": "4096Mi",
                                                       "request_cpu": "1000m",
                                                   },
                                                   image_pull_policy='Always',
-                                                  is_delete_operator_pod=True, )
+                                                  is_delete_operator_pod=True, ) for regex_range in appstore_analyyics_worker_regex_range]
+
 appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                     image="gcr.io/smartone-gcp-1/reporter:latest",
                                                     name="appstore-analytics-reporter",
@@ -120,7 +123,7 @@ playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
 
-start >> run_id_generator >> [appstore_analytics_worker, playstore_analytics_worker]
-appstore_analytics_worker >> appstore_analytics_reporter
+start >> run_id_generator >> [appstore_analytics_workers, playstore_analytics_worker]
+appstore_analytics_workers >> appstore_analytics_reporter
 playstore_analytics_worker >> playstore_analytics_reporter
 [appstore_analytics_reporter, playstore_analytics_reporter] >> end
