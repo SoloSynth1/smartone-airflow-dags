@@ -53,7 +53,7 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   dag=dag,
                                   python_callable=generate_run_id, )
 
-appstore_analyyics_worker_regex_range = ['[a-i]', '[j-r]', '[s-z]']
+appstore_analyyics_worker_regex_range = ['[a-e]', '[f-j]', '[k-o]', '[p-t]', '[u-z]']
 appstore_analytics_workers = [KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-scrapy:latest",
                                                   name="appstore-analytics-worker-{}".format(idx),
@@ -82,7 +82,7 @@ appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                         "RUN_FLOW": "appstore",
                                                     },
                                                     resources={
-                                                        "request_memory": "4096Mi",
+                                                        "request_memory": "5120Mi",
                                                         "request_cpu": "1000m",
                                                     },
                                                     image_pull_policy='Always',
