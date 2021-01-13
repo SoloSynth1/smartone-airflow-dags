@@ -123,9 +123,11 @@ playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
 start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
 appstore_analytics = DummyOperator(task_id="appstore-analytics", dag=dag)
+playstore_analytics = DummyOperator(task_id="playstore-analytics", dag=dag)
 
-start >> run_id_generator >> [appstore_analytics, playstore_analytics_worker]
+start >> run_id_generator >> [appstore_analytics, playstore_analytics]
 appstore_analytics >> appstore_analytics_workers
+playstore_analytics >> playstore_analytics_worker
 appstore_analytics_workers >> appstore_analytics_reporter
 playstore_analytics_worker >> playstore_analytics_reporter
 [appstore_analytics_reporter, playstore_analytics_reporter] >> end
