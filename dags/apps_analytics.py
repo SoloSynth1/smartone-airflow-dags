@@ -96,14 +96,15 @@ appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                         "RUN_FLOW": "appstore",
-                                                        "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                        # "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                        "OUTPUT_VOLUME_PATH": ".",
                                                     },
                                                     resources={
                                                         "request_memory": "2048Mi",
                                                         "request_cpu": "1000m",
                                                     },
-                                                    volumes=[reporter_volume],
-                                                    volume_mounts=[reporter_volume_mount],
+                                                    # volumes=[reporter_volume],
+                                                    # volume_mounts=[reporter_volume_mount],
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
 
