@@ -7,8 +7,6 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-from airflow.kubernetes.volume import Volume
-from airflow.kubernetes.volume_mount import VolumeMount
 
 
 def generate_run_id():
@@ -55,20 +53,6 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   dag=dag,
                                   python_callable=generate_run_id, )
 
-reporter_volume_name = 'reporter-volume'
-reporter_volume_mount_path = "/output"
-reporter_volume_config= {
-    'persistentVolumeClaim':
-      {
-        'claimName': reporter_volume_name
-      }
-    }
-reporter_volume = Volume(name=reporter_volume_name, configs=reporter_volume_config)
-reporter_volume_mount = VolumeMount(reporter_volume_name,
-                                    mount_path=reporter_volume_mount_path,
-                                    sub_path=None,
-                                    read_only=False)
-
 appstore_analytics_worker_regex_range = ['[a-b]', '[c-d]', '[e-f]', '[g-h]', '[i-l]', '[m-n]', '[o-p]', '[q-r]', '[s-t]', '[u-z]']
 appstore_analytics_workers = [KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-scrapy:latest",
@@ -96,15 +80,13 @@ appstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                         "RUN_FLOW": "appstore",
-                                                        # "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
                                                         "OUTPUT_VOLUME_PATH": ".",
                                                     },
                                                     resources={
-                                                        "request_memory": "2048Mi",
-                                                        "request_cpu": "1000m",
+                                                        "request_memory": "1024Mi",
+                                                        "request_cpu": "1200m",
+                                                        "request_ephemeral_storage": "20Gi",
                                                     },
-                                                    # volumes=[reporter_volume],
-                                                    # volume_mounts=[reporter_volume_mount],
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
 
@@ -132,14 +114,13 @@ playstore_analytics_reporter = KubernetesPodOperator(namespace='airflow',
                                                      env_vars={
                                                          "RUN_ID": "{{ ti.xcom_pull(task_ids='run-id-generator') }}",
                                                          "RUN_FLOW": "playstore",
-                                                         "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                         "OUTPUT_VOLUME_PATH": ".",
                                                      },
                                                      resources={
-                                                         "request_memory": "2048Mi",
-                                                         "request_cpu": "1000m",
+                                                         "request_memory": "1024Mi",
+                                                         "request_cpu": "1200m",
+                                                         "request_ephemeral_storage": "20Gi",
                                                      },
-                                                     volumes=[reporter_volume],
-                                                     volume_mounts=[reporter_volume_mount],
                                                      image_pull_policy='Always',
                                                      is_delete_operator_pod=True, )
 

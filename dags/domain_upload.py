@@ -5,8 +5,6 @@ from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.dates import days_ago
-from airflow.kubernetes.volume import Volume
-from airflow.kubernetes.volume_mount import VolumeMount
 
 default_args = {
     'owner': 'orix.auyeung',
@@ -39,20 +37,6 @@ dag = DAG(
     start_date=days_ago(2),
     tags=['analytics', 'external trigger'],
 )
-
-reporter_volume_name = 'reporter-volume'
-reporter_volume_mount_path = "/output"
-reporter_volume_config= {
-    'persistentVolumeClaim':
-      {
-        'claimName': reporter_volume_name
-      }
-    }
-reporter_volume = Volume(name=reporter_volume_name, configs=reporter_volume_config)
-reporter_volume_mount = VolumeMount(reporter_volume_name,
-                                    mount_path=reporter_volume_mount_path,
-                                    sub_path=None,
-                                    read_only=False)
 
 
 domain_queuer = KubernetesPodOperator(
@@ -139,14 +123,13 @@ domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
                                                      env_vars={
                                                          "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                          "RUN_FLOW": "googlesearch",
-                                                         "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                         "OUTPUT_VOLUME_PATH": ".",
                                                      },
                                                      resources={
-                                                        "request_memory": "4096Mi",
-                                                        "request_cpu": "1000m",
+                                                         "request_memory": "1024Mi",
+                                                         "request_cpu": "1000m",
+                                                         "request_ephemeral_storage": "20Gi",
                                                      },
-                                                     volumes=[reporter_volume],
-                                                     volume_mounts=[reporter_volume_mount],
                                                      image_pull_policy='Always',
                                                      is_delete_operator_pod=True, )
 
@@ -160,14 +143,13 @@ domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                         "RUN_FLOW": "landingpage",
-                                                        "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                        "OUTPUT_VOLUME_PATH": ".",
                                                     },
                                                     resources={
-                                                        "request_memory": "4096Mi",
+                                                        "request_memory": "1024Mi",
                                                         "request_cpu": "1000m",
+                                                        "request_ephemeral_storage": "20Gi",
                                                     },
-                                                    volumes=[reporter_volume],
-                                                    volume_mounts=[reporter_volume_mount],
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
 
@@ -181,14 +163,13 @@ domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
                                                     env_vars={
                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
                                                         "RUN_FLOW": "webshrinker",
-                                                        "OUTPUT_VOLUME_PATH": reporter_volume_mount_path,
+                                                        "OUTPUT_VOLUME_PATH": ".",
                                                     },
                                                     resources={
-                                                        "request_memory": "4096Mi",
+                                                        "request_memory": "1024Mi",
                                                         "request_cpu": "1000m",
+                                                        "request_ephemeral_storage": "20Gi",
                                                     },
-                                                    volumes=[reporter_volume],
-                                                    volume_mounts=[reporter_volume_mount],
                                                     image_pull_policy='Always',
                                                     is_delete_operator_pod=True, )
 
