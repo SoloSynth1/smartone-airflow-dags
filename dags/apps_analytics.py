@@ -69,7 +69,7 @@ reporter_volume_mount = VolumeMount(reporter_volume_name,
                                     sub_path=None,
                                     read_only=False)
 
-appstore_analytics_worker_regex_range = ['[a-e]', '[f-j]', '[k-o]', '[p-t]', '[u-z]']
+appstore_analytics_worker_regex_range = ['[a-b]', '[c-d]', '[e-f]', '[g-h]', '[i-l]', '[m-n]', '[o-p]', '[q-r]', '[s-t]', '[u-z]']
 appstore_analytics_workers = [KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-scrapy:latest",
                                                   name="appstore-analytics-worker-{}".format(idx),
