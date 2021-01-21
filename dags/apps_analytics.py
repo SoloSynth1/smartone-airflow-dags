@@ -53,7 +53,7 @@ run_id_generator = PythonOperator(task_id='run-id-generator',
                                   dag=dag,
                                   python_callable=generate_run_id, )
 
-appstore_analytics_worker_regex_range = ['[a-b]', '[c-d]', '[e-f]', '[g-h]', '[i-l]', '[m-n]', '[o-p]', '[q-r]', '[s-t]', '[u-z]']
+appstore_analytics_worker_regex_range = ['[a-b]', '[c-e]', '[f]', '[g-h]', '[i-l]', '[m-n]', '[o-p]', '[q-r]', '[s-t]', '[u-z]']
 appstore_analytics_workers = [KubernetesPodOperator(namespace='airflow',
                                                   image="gcr.io/smartone-gcp-1/appstore-scrapy:latest",
                                                   name="appstore-analytics-worker-{}".format(idx),
