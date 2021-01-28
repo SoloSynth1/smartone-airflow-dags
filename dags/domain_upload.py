@@ -62,7 +62,8 @@ crawler_pod_args = {
         }
     },
     "labels": {
-        'pod-type': 'crawler-pod'
+        'pod-type': 'crawler-pod',
+        'redis-client' : 'true'
     },
 }
 
@@ -94,7 +95,6 @@ domain_queuer = KubernetesPodOperator(
 def landingpage_worker(worker_id):
     return KubernetesPodOperator(namespace='airflow',
                                  image="gcr.io/smartone-gcp-1/domain-landingpage-parser:latest",
-                                 labels={"redis-client": "true"},
                                  name="domain-landingpage-worker-{}".format(worker_id),
                                  task_id="domain-landingpage-worker-{}".format(worker_id),
                                  dag=dag,
@@ -105,7 +105,6 @@ def landingpage_worker(worker_id):
 def webshrinker_worker(worker_id):
     return KubernetesPodOperator(namespace='airflow',
                                  image="gcr.io/smartone-gcp-1/domain-webshrinker-worker:latest",
-                                 labels={"redis-client": "true"},
                                  name="domain-webshrinker-worker-{}".format(worker_id),
                                  task_id="domain-webshrinker-worker-{}".format(worker_id),
                                  dag=dag,
@@ -116,7 +115,6 @@ def webshrinker_worker(worker_id):
 def googlesearch_worker(worker_id):
     return KubernetesPodOperator(namespace='airflow',
                                  image="gcr.io/smartone-gcp-1/domain-googlesearch-parser:latest",
-                                 labels={"redis-client": "true"},
                                  name="domain-googlesearch-worker-{}".format(worker_id),
                                  task_id="domain-googlesearch-worker-{}".format(worker_id),
                                  dag=dag,
