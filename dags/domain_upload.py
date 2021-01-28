@@ -63,7 +63,7 @@ crawler_pod_args = {
     },
     "labels": {
         'pod-type': 'crawler-pod',
-        'redis-client' : 'true'
+        'redis-client': 'true'
     },
 }
 
