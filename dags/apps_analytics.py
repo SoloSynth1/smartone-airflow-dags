@@ -7,7 +7,7 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 
-from common import common_pod_args, crawler_pod_args
+from common.pods import common_pod_args, crawler_pod_args
 
 
 def generate_run_id():
