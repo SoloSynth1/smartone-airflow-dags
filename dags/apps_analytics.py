@@ -7,8 +7,6 @@ from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOpera
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 
-from common.pods import common_pod_args, crawler_pod_args
-
 
 def generate_run_id():
     hkt = pytz.timezone('Asia/Hong_Kong')
@@ -39,31 +37,42 @@ default_args = {
     # 'trigger_rule': 'all_success'
 }
 
-# crawler_affinity = {
-#     'nodeAffinity': {
-#         'requiredDuringSchedulingIgnoredDuringExecution': {
-#             'nodeSelectorTerms': [{
-#                 'matchExpressions': [{
-#                     'key': 'cloud.google.com/gke-nodepool',
-#                     'operator': 'In',
-#                     'values': ['crawler-pool']
-#                 }]
-#             }]
-#         }
-#     },
-#     'podAntiAffinity': {
-#         'requiredDuringSchedulingIgnoredDuringExecution': [{
-#             'labelSelector': {
-#                 'matchExpressions': [{
-#                     'key': 'pod-type',
-#                     'operator': 'In',
-#                     'values': ['crawler-pod']
-#                 }]
-#             },
-#             'topologyKey': 'kubernetes.io/hostname'
-#         }]
-#     },
-# }
+common_pod_args = {
+    "is_delete_operator_pod": True,
+    "image_pull_policy": "Always",
+    "get_logs": False,
+}
+
+crawler_pod_args = {
+    "affinity": {
+        'nodeAffinity': {
+            'requiredDuringSchedulingIgnoredDuringExecution': {
+                'nodeSelectorTerms': [{
+                    'matchExpressions': [{
+                        'key': 'cloud.google.com/gke-nodepool',
+                        'operator': 'In',
+                        'values': ['crawler-pool']
+                    }]
+                }]
+            }
+        },
+        'podAntiAffinity': {
+            'requiredDuringSchedulingIgnoredDuringExecution': [{
+                'labelSelector': {
+                    'matchExpressions': [{
+                        'key': 'pod-type',
+                        'operator': 'In',
+                        'values': ['crawler-pod']
+                    }]
+                },
+                'topologyKey': 'kubernetes.io/hostname'
+            }]
+        }
+    },
+    "labels": {
+        'pod-type': 'crawler-pod'
+    },
+}
 
 dag = DAG(
     'apps_analytics',
