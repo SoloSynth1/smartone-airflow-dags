@@ -151,7 +151,7 @@ domain_googlesearch = DummyOperator(task_id="domain-googlesearch", dag=dag)
 # domain_landingpage = DummyOperator(task_id="domain-landingpage", dag=dag)
 # domain_webshrinker = DummyOperator(task_id="domain-webshrinker", dag=dag)
 
-domain_googlesearch_workers = [googlesearch_worker(x) for x in range(30)]
+domain_googlesearch_workers = [googlesearch_worker(x) for x in range(40)]
 # domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 # domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
