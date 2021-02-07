@@ -100,7 +100,7 @@ domain_queuer = KubernetesPodOperator(
 #                                  dag=dag,
 #                                  resources={
 #                                      "request_memory": "512Mi",
-#                                      "request_cpu": "200m",
+#                                      "request_cpu": "100m",
 #                                  },
 #                                  **common_pod_args,
 #                                  **crawler_pod_args,)
@@ -114,7 +114,7 @@ domain_queuer = KubernetesPodOperator(
 #                                  dag=dag,
 #                                  resources={
 #                                      "request_memory": "512Mi",
-#                                      "request_cpu": "200m",
+#                                      "request_cpu": "100m",
 #                                  },
 #                                  **common_pod_args,
 #                                  **crawler_pod_args,)
@@ -128,7 +128,7 @@ def googlesearch_worker(worker_id):
                                  dag=dag,
                                  resources={
                                      "request_memory": "512Mi",
-                                     "request_cpu": "200m",
+                                     "request_cpu": "100m",
                                  },
                                  **common_pod_args,
                                  **crawler_pod_args,)
