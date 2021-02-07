@@ -92,32 +92,32 @@ domain_queuer = KubernetesPodOperator(
 )
 
 
-def landingpage_worker(worker_id):
-    return KubernetesPodOperator(namespace='airflow',
-                                 image="gcr.io/smartone-gcp-1/domain-landingpage-parser:latest",
-                                 name="domain-landingpage-worker-{}".format(worker_id),
-                                 task_id="domain-landingpage-worker-{}".format(worker_id),
-                                 dag=dag,
-                                 resources={
-                                     "request_memory": "512Mi",
-                                     "request_cpu": "200m",
-                                 },
-                                 **common_pod_args,
-                                 **crawler_pod_args,)
-
-
-def webshrinker_worker(worker_id):
-    return KubernetesPodOperator(namespace='airflow',
-                                 image="gcr.io/smartone-gcp-1/domain-webshrinker-worker:latest",
-                                 name="domain-webshrinker-worker-{}".format(worker_id),
-                                 task_id="domain-webshrinker-worker-{}".format(worker_id),
-                                 dag=dag,
-                                 resources={
-                                     "request_memory": "512Mi",
-                                     "request_cpu": "200m",
-                                 },
-                                 **common_pod_args,
-                                 **crawler_pod_args,)
+# def landingpage_worker(worker_id):
+#     return KubernetesPodOperator(namespace='airflow',
+#                                  image="gcr.io/smartone-gcp-1/domain-landingpage-parser:latest",
+#                                  name="domain-landingpage-worker-{}".format(worker_id),
+#                                  task_id="domain-landingpage-worker-{}".format(worker_id),
+#                                  dag=dag,
+#                                  resources={
+#                                      "request_memory": "512Mi",
+#                                      "request_cpu": "200m",
+#                                  },
+#                                  **common_pod_args,
+#                                  **crawler_pod_args,)
+#
+#
+# def webshrinker_worker(worker_id):
+#     return KubernetesPodOperator(namespace='airflow',
+#                                  image="gcr.io/smartone-gcp-1/domain-webshrinker-worker:latest",
+#                                  name="domain-webshrinker-worker-{}".format(worker_id),
+#                                  task_id="domain-webshrinker-worker-{}".format(worker_id),
+#                                  dag=dag,
+#                                  resources={
+#                                      "request_memory": "512Mi",
+#                                      "request_cpu": "200m",
+#                                  },
+#                                  **common_pod_args,
+#                                  **crawler_pod_args,)
 
 
 def googlesearch_worker(worker_id):
@@ -148,12 +148,12 @@ start = DummyOperator(task_id="start", dag=dag)
 end = DummyOperator(task_id="end", dag=dag)
 
 domain_googlesearch = DummyOperator(task_id="domain-googlesearch", dag=dag)
-domain_landingpage = DummyOperator(task_id="domain-landingpage", dag=dag)
-domain_webshrinker = DummyOperator(task_id="domain-webshrinker", dag=dag)
+# domain_landingpage = DummyOperator(task_id="domain-landingpage", dag=dag)
+# domain_webshrinker = DummyOperator(task_id="domain-webshrinker", dag=dag)
 
 domain_googlesearch_workers = [googlesearch_worker(x) for x in range(30)]
-domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
-domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
+# domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
+# domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
 domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
                                                      image="gcr.io/smartone-gcp-1/reporter:latest",
@@ -173,41 +173,41 @@ domain_googlesearch_reporter = KubernetesPodOperator(namespace='airflow',
                                                      },
                                                      **common_pod_args,)
 
-domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
-                                                    image="gcr.io/smartone-gcp-1/reporter:latest",
-                                                    labels={"redis-client": "true"},
-                                                    name="domain-landingpage-reporter",
-                                                    task_id="domain-landingpage-reporter",
-                                                    dag=dag,
-                                                    env_vars={
-                                                        "RUN_ID": "{{ dag_run.conf['runId'] }}",
-                                                        "RUN_FLOW": "landingpage",
-                                                        "OUTPUT_VOLUME_PATH": ".",
-                                                    },
-                                                    resources={
-                                                        "request_memory": "1024Mi",
-                                                        "request_cpu": "1000m",
-                                                        "request_ephemeral_storage": "20Gi",
-                                                    },
-                                                    **common_pod_args,)
+# domain_landingpage_reporter = KubernetesPodOperator(namespace='airflow',
+#                                                     image="gcr.io/smartone-gcp-1/reporter:latest",
+#                                                     labels={"redis-client": "true"},
+#                                                     name="domain-landingpage-reporter",
+#                                                     task_id="domain-landingpage-reporter",
+#                                                     dag=dag,
+#                                                     env_vars={
+#                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
+#                                                         "RUN_FLOW": "landingpage",
+#                                                         "OUTPUT_VOLUME_PATH": ".",
+#                                                     },
+#                                                     resources={
+#                                                         "request_memory": "1024Mi",
+#                                                         "request_cpu": "1000m",
+#                                                         "request_ephemeral_storage": "20Gi",
+#                                                     },
+#                                                     **common_pod_args,)
 
-domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
-                                                    image="gcr.io/smartone-gcp-1/reporter:latest",
-                                                    labels={"redis-client": "true"},
-                                                    name="domain-webshrinker-reporter",
-                                                    task_id="domain-webshrinker-reporter",
-                                                    dag=dag,
-                                                    env_vars={
-                                                        "RUN_ID": "{{ dag_run.conf['runId'] }}",
-                                                        "RUN_FLOW": "webshrinker",
-                                                        "OUTPUT_VOLUME_PATH": ".",
-                                                    },
-                                                    resources={
-                                                        "request_memory": "1024Mi",
-                                                        "request_cpu": "1000m",
-                                                        "request_ephemeral_storage": "20Gi",
-                                                    },
-                                                    **common_pod_args,)
+# domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
+#                                                     image="gcr.io/smartone-gcp-1/reporter:latest",
+#                                                     labels={"redis-client": "true"},
+#                                                     name="domain-webshrinker-reporter",
+#                                                     task_id="domain-webshrinker-reporter",
+#                                                     dag=dag,
+#                                                     env_vars={
+#                                                         "RUN_ID": "{{ dag_run.conf['runId'] }}",
+#                                                         "RUN_FLOW": "webshrinker",
+#                                                         "OUTPUT_VOLUME_PATH": ".",
+#                                                     },
+#                                                     resources={
+#                                                         "request_memory": "1024Mi",
+#                                                         "request_cpu": "1000m",
+#                                                         "request_ephemeral_storage": "20Gi",
+#                                                     },
+#                                                     **common_pod_args,)
 
 start.set_downstream(domain_queuer)
 # domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])
