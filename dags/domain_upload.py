@@ -98,6 +98,10 @@ def landingpage_worker(worker_id):
                                  name="domain-landingpage-worker-{}".format(worker_id),
                                  task_id="domain-landingpage-worker-{}".format(worker_id),
                                  dag=dag,
+                                 resources={
+                                     "request_memory": "512Mi",
+                                     "request_cpu": "200m",
+                                 },
                                  **common_pod_args,
                                  **crawler_pod_args,)
 
@@ -108,6 +112,10 @@ def webshrinker_worker(worker_id):
                                  name="domain-webshrinker-worker-{}".format(worker_id),
                                  task_id="domain-webshrinker-worker-{}".format(worker_id),
                                  dag=dag,
+                                 resources={
+                                     "request_memory": "512Mi",
+                                     "request_cpu": "200m",
+                                 },
                                  **common_pod_args,
                                  **crawler_pod_args,)
 
@@ -118,6 +126,10 @@ def googlesearch_worker(worker_id):
                                  name="domain-googlesearch-worker-{}".format(worker_id),
                                  task_id="domain-googlesearch-worker-{}".format(worker_id),
                                  dag=dag,
+                                 resources={
+                                     "request_memory": "512Mi",
+                                     "request_cpu": "200m",
+                                 },
                                  **common_pod_args,
                                  **crawler_pod_args,)
 
@@ -139,7 +151,7 @@ domain_googlesearch = DummyOperator(task_id="domain-googlesearch", dag=dag)
 domain_landingpage = DummyOperator(task_id="domain-landingpage", dag=dag)
 domain_webshrinker = DummyOperator(task_id="domain-webshrinker", dag=dag)
 
-domain_googlesearch_workers = [googlesearch_worker(x) for x in range(3)]
+domain_googlesearch_workers = [googlesearch_worker(x) for x in range(30)]
 domain_landingpage_workers = [landingpage_worker(x) for x in range(3)]
 domain_webshrinker_workers = [webshrinker_worker(x) for x in range(3)]
 
@@ -198,14 +210,16 @@ domain_webshrinker_reporter = KubernetesPodOperator(namespace='airflow',
                                                     **common_pod_args,)
 
 start.set_downstream(domain_queuer)
-domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])
+# domain_queuer.set_downstream([domain_googlesearch, domain_landingpage, domain_webshrinker])
+domain_queuer.set_downstream([domain_googlesearch])
 
 domain_googlesearch.set_downstream(domain_googlesearch_workers)
-domain_landingpage.set_downstream(domain_landingpage_workers)
-domain_webshrinker.set_downstream(domain_webshrinker_workers)
+# domain_landingpage.set_downstream(domain_landingpage_workers)
+# domain_webshrinker.set_downstream(domain_webshrinker_workers)
 
 domain_googlesearch_reporter.set_upstream(domain_googlesearch_workers)
-domain_landingpage_reporter.set_upstream(domain_landingpage_workers)
-domain_webshrinker_reporter.set_upstream(domain_webshrinker_workers)
+# domain_landingpage_reporter.set_upstream(domain_landingpage_workers)
+# domain_webshrinker_reporter.set_upstream(domain_webshrinker_workers)
 
-end.set_upstream([domain_googlesearch_reporter, domain_landingpage_reporter, domain_webshrinker_reporter])
+# end.set_upstream([domain_googlesearch_reporter, domain_landingpage_reporter, domain_webshrinker_reporter])
+end.set_upstream([domain_googlesearch_reporter])
